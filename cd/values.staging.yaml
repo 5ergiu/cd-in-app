@@ -1,0 +1,75 @@
+# Staging environment overrides for example-next-app
+# Production-like build with staging resources
+
+replicaCount: 2
+
+nodeEnv: production
+
+devMode:
+  enabled: false
+
+command: ["node", "server.js"]
+
+service:
+  type: ClusterIP
+
+ingress:
+  enabled: true
+  className: "traefik"
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-staging
+  hosts:
+    - host: example-next-app-staging.yourdomain.com
+      paths:
+        - path: /
+          pathType: Prefix
+  tls:
+    - secretName: example-next-app-staging-tls
+      hosts:
+        - example-next-app-staging.yourdomain.com
+
+resources:
+  requests:
+    memory: "512Mi"
+    cpu: "500m"
+  limits:
+    memory: "1Gi"
+    cpu: "1000m"
+
+# Database connections
+redis:
+  password: ""  # Set via secrets management
+
+postgres:
+  password: ""  # Set via secrets management
+
+# Production-ready probes
+startupProbe:
+  enabled: true
+  initialDelaySeconds: 0
+  periodSeconds: 5
+  timeoutSeconds: 3
+  failureThreshold: 30  # 2.5 minutes max
+  successThreshold: 1
+
+livenessProbe:
+  enabled: true
+  initialDelaySeconds: 30
+  periodSeconds: 10
+  timeoutSeconds: 5
+  failureThreshold: 3
+  successThreshold: 1
+
+readinessProbe:
+  enabled: true
+  initialDelaySeconds: 10
+  periodSeconds: 5
+  timeoutSeconds: 3
+  failureThreshold: 3
+  successThreshold: 1
+
+env:
+  - name: NEXT_PUBLIC_APP_NAME
+    value: "Example Next.js App (Staging)"
+  - name: NEXT_PUBLIC_API_URL
+    value: "https://example-next-app-staging.yourdomain.com"

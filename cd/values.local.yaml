@@ -1,0 +1,68 @@
+# Local environment overrides for example-next-app
+# Development mode with hot reload and hostPath mounting
+
+replicaCount: 1
+
+# Enable dev mode
+devMode:
+  enabled: true
+  command: ["npm", "run", "dev"]
+  hostPath:
+    enabled: true
+    path: /home/sergiu/example-next-app  # Update this to your actual project path
+  preserveNodeModules: true
+
+nodeEnv: development
+
+service:
+  type: NodePort
+
+nodePort:
+  enabled: true
+  port: 30300
+
+ingress:
+  enabled: true
+  className: "traefik"
+  annotations:
+    traefik.ingress.kubernetes.io/router.entrypoints: web
+  hosts:
+    - host: example-next-app.local
+      paths:
+        - path: /
+          pathType: Prefix
+  tls: []
+
+resources:
+  requests:
+    memory: "256Mi"
+    cpu: "200m"
+  limits:
+    memory: "512Mi"
+    cpu: "500m"
+
+# Database connections
+redis:
+  password: ""
+
+postgres:
+  password: "postgres"
+
+# Relaxed probes for dev mode
+# Startup probe for slow initial compilation + npm install
+startupProbe:
+  enabled: false
+
+# Liveness probe - very relaxed for dev
+livenessProbe:
+  enabled: false
+
+# Readiness probe - relaxed for dev
+readinessProbe:
+  enabled: false
+
+env:
+  - name: NEXT_PUBLIC_APP_NAME
+    value: "Example Next.js App (Local)"
+  - name: NEXT_PUBLIC_API_URL
+    value: "http://example-next-app.local"

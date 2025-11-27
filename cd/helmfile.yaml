@@ -1,0 +1,25 @@
+environments:
+  default:
+    values:
+      - env: local
+  local:
+    values:
+      - env: local
+  staging:
+    values:
+      - env: staging
+  production:
+    values:
+      - env: production
+
+---
+releases:
+  # ==========================================
+  # Ofertico - Next.js Application
+  # ==========================================
+  - name: ofertico
+    namespace: apps
+    chart: git+ssh://git@github.com/5ergiu/infrastructure@charts/nextjs?ref=main
+    values:
+      - values.yaml
+      - values.{{ .Environment.Values.env }}.yaml
